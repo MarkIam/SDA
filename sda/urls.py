@@ -15,9 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from manifest.views import manifest
+from manifest.views import manifest, skydiver_detail
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('manifest/', manifest),
+    path('manifest/skydivers', manifest),
+    path('skydiver/<int:id>/', skydiver_detail, name = "skydiver_detail"),
 ]

@@ -13,6 +13,12 @@ class Skydiver(models.Model):
     def __str__(self):
         return self.last_name + ' ' + self.first_name
 
+    def get_absolute_url(self):
+        pass
+
     class Meta:
         verbose_name = 'Клиент'
         verbose_name_plural = 'Клиенты'
+        unique_together = ('last_name', 'first_name', 'patronymic', 'passport_number')
+        # ordering = ['last_name']
+        # abstract = True

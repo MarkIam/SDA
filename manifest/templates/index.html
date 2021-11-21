@@ -15,7 +15,7 @@
             {% for skydiver in skydivers_list%}
             <tr> 
                 <td> {{skydiver.id}} </td>
-                <td> {{skydiver.last_name}} </td>
+                <td> <a href="/skydiver/{{skydiver.id}}">{{skydiver.last_name}}</a></td>
                 <td> {{skydiver.first_name}} </td>
                 <td> {{skydiver.email }} </td>
             </tr>

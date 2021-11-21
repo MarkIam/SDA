@@ -7,3 +7,10 @@ def manifest(request):
                 {
                   'skydivers_list': skydivers_list
                 })
+
+def skydiver_detail(request, id):
+    skydiver = Skydiver.objects.get(pk = id)
+    return render(request, 'detail.html',
+                {
+                  'skydiver': skydiver
+                })
