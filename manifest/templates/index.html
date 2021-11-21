@@ -1,0 +1,27 @@
+{% extends "base.html"%}
+
+{%block content%}
+<div class="row">
+    <div class="col-md-10 col-sm-12">
+        <table class="table table-hover" >
+            <thead>
+                <tr>
+                    <th> id</th>
+                    <th> Фамилия </th>
+                    <th> Имя </th>
+                    <th> Почта </th>
+                </tr>
+            </thead>
+            {% for skydiver in skydivers_list%}
+            <tr> 
+                <td> {{skydiver.id}} </td>
+                <td> {{skydiver.last_name}} </td>
+                <td> {{skydiver.first_name}} </td>
+                <td> {{skydiver.email }} </td>
+            </tr>
+            {%endfor%}
+        </table >
+    </div>
+
+</div>
+{%endblock%}
