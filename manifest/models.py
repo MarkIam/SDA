@@ -23,7 +23,7 @@ class Skydiver(models.Model):
         # ordering = ['last_name']
         # abstract = True
 
-class Certificate(models.Model):
+class GiftCertificate(models.Model):
     CERTIFICATE_STATUS = [
         ('IS', 'Issued'), # выпущен
         ('BO', 'Bought'), # приборетен
@@ -58,7 +58,7 @@ class BalanceOperation(models.Model):
     skydiver = models.ForeignKey(Skydiver, on_delete=models.RESTRICT)
     
     OPERATION_TYPE = [
-        ('WD', 'Wuthdraw'), # списание
+        ('WD', 'Withdraw'), # списание
         ('RF', 'Refill') # зачисление
     ]
     operation_type = models.CharField(max_length=2, choices=OPERATION_TYPE, verbose_name='Тип операции')
@@ -67,15 +67,18 @@ class BalanceOperation(models.Model):
     stamp = models.DateTimeField(auto_now=False, auto_now_add=False, verbose_name='Дата/время операции')
 
     def __str__(self):
-        return self.skydiver.last_name + ', ' + self.operation_type + ' ' + self.amount
+        return self.skydiver.last_name + ', ' + self.operation_type + ' ' + str(self.amount)
 
     class Meta:
         verbose_name = 'Операция по балансу'
         verbose_name_plural = 'Операции по балансу'
 
 class CertificateBalanceOperation(models.Model):
-    certificate = models.ForeignKey(Certificate, on_delete=models.RESTRICT)
+    certificate = models.ForeignKey(GiftCertificate, on_delete=models.RESTRICT)
     operation = models.ForeignKey(BalanceOperation, on_delete=models.RESTRICT)
+
+    def __str__(self):
+        return self.certificate.number + ', ' + str(self.operation.amount)
 
     class Meta:
         verbose_name = 'Операция c сертификатом'
