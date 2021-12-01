@@ -9,6 +9,7 @@ class Skydiver(models.Model):
     passport_data = models.TextField(max_length=256, verbose_name='Кем и когда выдан паспорт')
     email = models.EmailField(verbose_name='Электронная почта', blank=True)
     phone_number = models.CharField(max_length=10, verbose_name='Номер телефона')
+    weight = models.FloatField(verbose_name='Вес', blank=True, default=75)
 
     def __str__(self):
         return self.last_name + ' ' + self.first_name
@@ -92,10 +93,25 @@ class WithdrawalBalanceOperation(models.Model):
         verbose_name = 'Операция cписания за услуги'
         verbose_name_plural = 'Операции cписания за услуги'
 
+class SkydiveDiscipline(models.Model):
+    name = models.CharField(max_length=64, verbose_name='Название дисциплины')
+    short_name = models.CharField(max_length=10, verbose_name='Короткое название дисциплины', default='-')
+    description = models.TextField(max_length=1000, verbose_name='Описание дисциплины', default='-')
+    
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Дисциплина'
+        verbose_name_plural = 'Дисциплины'
+
 class SkydiverRequest(models.Model):
     skydiver = models.ForeignKey(to=Skydiver, on_delete=models.RESTRICT, verbose_name='Клиент')
     creationStamp = models.DateTimeField(verbose_name='Дата/время создания заявки')
     services = models.ManyToManyField(to=SkydivingService, verbose_name='Услуги в заявке')
+    discipline = models.ForeignKey(to=SkydiveDiscipline, on_delete=models.RESTRICT, verbose_name='Дисциплина', default=1)
+    height = models.FloatField(verbose_name='Высота прыжка', default=1200)
+
     REQUEST_STATUS = [
         ('CR', 'Created'), # создана
         ('CMP', 'Completed'),   # выполнена

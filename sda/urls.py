@@ -16,9 +16,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from manifest.views import manifest, skydiver_detail
+from django.urls import include, path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('polls/', include('polls.urls')),
     path('manifest/', manifest),
     path('manifest/skydivers', manifest),
     path('skydiver/<int:id>/', skydiver_detail, name = "skydiver_detail"),
