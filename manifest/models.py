@@ -160,7 +160,7 @@ class Plane(models.Model):
 class PlaneLift(models.Model):
     plane = models.ForeignKey(to = Plane, on_delete=models.RESTRICT, verbose_name='Воздушное судно')
     day = models.DateField(verbose_name='Дата подъема')
-    ord_numver = models.SmallIntegerField(verbose_name='Порядковый номер')
+    ord_number = models.SmallIntegerField(verbose_name='Порядковый номер')
 
     LIFT_STATUS = [
         ('CR', 'Создан'), 
@@ -175,7 +175,7 @@ class PlaneLift(models.Model):
     requests = models.ManyToManyField(to=SkydiverRequest, verbose_name='Заявки в подъеме')
 
     def __str__(self):
-        return str(self.ord_numver) + ',' + self.plane.reg_number + ',' + self.day.strftime('%d.%m.%Y')
+        return str(self.ord_number) + ',' + self.plane.reg_number + ',' + self.day.strftime('%d.%m.%Y')
 
     class Meta:
         verbose_name = 'Подъем воздушного судна'
