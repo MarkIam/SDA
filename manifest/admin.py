@@ -1,5 +1,5 @@
 from django.contrib import admin
-from manifest.models import Skydiver, GiftCertificate, SkydivingService, BalanceOperation, SkydiveDiscipline, SkydiverRequest, PlaneType, Plane, PlaneLift
+from manifest.models import Skydiver, GiftCertificate, SkydivingService, BalanceOperation, SkydiveDiscipline, SkydiverRequest, PlaneType, Plane, PlaneLift, RequestService
 
 @admin.register(Skydiver)
 class SkydiverAdmin(admin.ModelAdmin):
@@ -22,9 +22,14 @@ class BalanceOperationAdmin(admin.ModelAdmin):
 class SkydiveDisciplineAdmin(admin.ModelAdmin):
     pass
 
+class RequestServiceInline(admin.TabularInline):
+    model = RequestService
+    
 @admin.register(SkydiverRequest)
 class SkydiverRequestAdmin(admin.ModelAdmin):
-    pass
+    inlines = [
+       RequestServiceInline
+   ]
 
 @admin.register(PlaneType)
 class PlaneTypeAdmin(admin.ModelAdmin):

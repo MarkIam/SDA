@@ -1,3 +1,4 @@
+from django.contrib import admin
 from django.db import models
 
 class Skydiver(models.Model):
@@ -21,14 +22,12 @@ class Skydiver(models.Model):
         verbose_name = 'Клиент'
         verbose_name_plural = 'Клиенты'
         unique_together = ('last_name', 'first_name', 'patronymic', 'passport_number')
-        # ordering = ['last_name']
-        # abstract = True
 
 class GiftCertificate(models.Model):
     CERTIFICATE_STATUS = [
-        ('IS', 'Issued'), # выпущен
-        ('BO', 'Bought'), # приборетен
-        ('US', 'Used'),   # использован
+        ('IS', 'Выпущен'),
+        ('BO', 'Приобретен'),
+        ('US', 'Использован')
     ]
     status = models.CharField(max_length=2, choices=CERTIFICATE_STATUS, verbose_name='Текущий статус сертификата')
     number = models.CharField(max_length=10, verbose_name='Номер сертификата')
@@ -59,8 +58,8 @@ class BalanceOperation(models.Model):
     skydiver = models.ForeignKey(Skydiver, on_delete=models.RESTRICT, verbose_name='Клиент')
     
     OPERATION_TYPE = [
-        ('WD', 'Withdraw'), # списание
-        ('RF', 'Refill') # зачисление
+        ('WD', 'Cписание'),
+        ('RF', 'Зачисление')
     ]
     operation_type = models.CharField(max_length=2, choices=OPERATION_TYPE, verbose_name='Тип операции')
 
@@ -108,13 +107,13 @@ class SkydiveDiscipline(models.Model):
 class SkydiverRequest(models.Model):
     skydiver = models.ForeignKey(to=Skydiver, on_delete=models.RESTRICT, verbose_name='Клиент')
     creationStamp = models.DateTimeField(verbose_name='Дата/время создания заявки')
-    services = models.ManyToManyField(to=SkydivingService, verbose_name='Услуги в заявке')
     discipline = models.ForeignKey(to=SkydiveDiscipline, on_delete=models.RESTRICT, verbose_name='Дисциплина', default=1)
     height = models.FloatField(verbose_name='Высота прыжка', default=1200)
 
     REQUEST_STATUS = [
-        ('CR', 'Created'), # создана
-        ('CMP', 'Completed'),   # выполнена
+        ('CR', 'Создана'),
+        ('MNF', 'Включена в подъем'),
+        ('CMP', 'Выполнена')
     ]
     status = models.CharField(max_length=3, choices=REQUEST_STATUS, verbose_name='Текущий статус заявки')
 
@@ -124,6 +123,16 @@ class SkydiverRequest(models.Model):
     class Meta:
         verbose_name = 'Заявка'
         verbose_name_plural = 'Заявки'
+
+class RequestService(models.Model):
+    request = models.ForeignKey(SkydiverRequest,on_delete=models.CASCADE,null=True, verbose_name='Заявка')
+    service = models.ForeignKey(SkydivingService,on_delete=models.PROTECT,null=True, verbose_name='Услуга')
+    quantity = models.FloatField(verbose_name='Количество')
+
+    class Meta:
+        verbose_name = 'Услуга в заявке'
+        verbose_name_plural = 'Услуги в заявке'
+
 
 class PlaneType(models.Model):
     name = models.CharField(max_length=64, verbose_name='Название типа воздушного судна')
@@ -154,19 +163,19 @@ class PlaneLift(models.Model):
     ord_numver = models.SmallIntegerField(verbose_name='Порядковый номер')
 
     LIFT_STATUS = [
-        ('CR', 'Created'), # создан
-        ('PL', 'Planned'), # запланирован
-        ('FRM', 'Formed'),   # сформирован
-        ('RD', 'Ready to take-off'),   # готов к взлету
-        ('IP', 'In progress'),   # в воздухе
-        ('CMP', 'Completed'),   # завершен
-        ('CNC', 'Canceled'),   # отменен
+        ('CR', 'Создан'), 
+        ('PL', 'Запланирован'),
+        ('FRM', 'Сформирован'),
+        ('RD', 'Готов к взлету'),
+        ('IP', 'В воздухе'),
+        ('CMP', 'Завершен'),
+        ('CNC', 'Отменен')
     ]
     status = models.CharField(max_length=3, choices=LIFT_STATUS, verbose_name='Текущий статус подъема')
     requests = models.ManyToManyField(to=SkydiverRequest, verbose_name='Заявки в подъеме')
 
     def __str__(self):
-        return self.ord_numver + ',' + self.plane.reg_number + ',' + self.day.strftime('%d.%m.%Y')
+        return str(self.ord_numver) + ',' + self.plane.reg_number + ',' + self.day.strftime('%d.%m.%Y')
 
     class Meta:
         verbose_name = 'Подъем воздушного судна'

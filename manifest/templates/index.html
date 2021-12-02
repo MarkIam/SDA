@@ -2,7 +2,7 @@
 
 {%block content%}
 <div class="row">
-    <div class="col-md-10 col-sm-12">
+    <!-- <div class="col-md-10 col-sm-12">
         <table class="table table-hover" >
             <thead>
                 <tr>
@@ -21,7 +21,67 @@
             </tr>
             {%endfor%}
         </table >
+    </div> -->
+    <!-- <form action="" method="POST">
+        <div class="mb-2">
+            <label for="skydiverSelect" class="form-label">Клиент</label>
+            <select id="skydiverSelect" class="form-select">
+                {% for skydiver in skydivers_list%}
+                <option value={{skydiver.id}}>{{skydiver.last_name}} {{skydiver.first_name}} </option>
+                {%endfor%}
+            </select>
+        </div>
+        <div class="mb-2">
+            <label for="requestDate" class="form-label">Дата прыжка</label>
+            <input id="requestDate" type="date" />
+        </div>
+    </form> -->
+    <div class="col-md-10 col-sm-12">
+        <div class="row row-cols-1  row-cols-sm-2 row-cols-md-3 g-4" id="requestsArea">
+        </div>
     </div>
-
 </div>
+<script type="text/javascript">
+
+    async function searchRequests(){
+        let response = await fetch('http://127.0.0.1:8000/manifest/request/json')
+        let data  = await response.json()
+
+        let  ar = document.getElementById('requestsArea')
+        ar.innerHTML=''
+
+        for(let el of data){
+            let newEl = document.createElement('div')
+            newEl.innerHTML=`
+                <div class="col">
+                    <div class="card h-100" name="request_id_${el.id}" some_attr="${el.id}"  > 
+                        <div class="card-body">
+                            <h5 class="card-title"> ${el.skydiver_name} </h5>
+                            <p> тип ${el.discipline_name} </p>
+                        </div>
+                    </div>
+                </div>
+            `
+            ar.appendChild(newEl)
+        }
+            
+        return false
+        }
+        searchRequests();
+</script>
+
 {%endblock%}
+
+<div class="accordion" id="accordionExample">
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingOne">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          Accordion Item #1
+        </button>
+      </h2>
+      <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+          <strong>This is the first item's accordion body.</strong> It is shown by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+        </div>
+      </div>
+    </div>
