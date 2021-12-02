@@ -23,6 +23,7 @@ def unassigned_requests_list(request):
         ret.append({
             'id':req.id,
             'skydiver_name':req.skydiver.last_name,
-            'discipline_name':req.discipline.name
+            'discipline_name':req.discipline.name,
+            'discipline_short_name':req.discipline.short_name
         })
     return JsonResponse(ret,safe=False)

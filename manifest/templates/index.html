@@ -48,40 +48,43 @@
         let data  = await response.json()
 
         let  ar = document.getElementById('requestsArea')
-        ar.innerHTML=''
+        ar.innerHTML='<div class="accordion" id="accordionRequests">'
+        let accordEl = document.getElementById('accordionRequests')
+        let old_discipine = '-'
+        let current_discipine = '-'
+        let accordeonItem = undefined
+        let accordeonBody = undefined
 
         for(let el of data){
-            let newEl = document.createElement('div')
-            newEl.innerHTML=`
-                <div class="col">
-                    <div class="card h-100" name="request_id_${el.id}" some_attr="${el.id}"  > 
-                        <div class="card-body">
-                            <h5 class="card-title"> ${el.skydiver_name} </h5>
-                            <p> тип ${el.discipline_name} </p>
+            current_discipine = el.discipline_name
+            if (current_discipine != old_discipine){
+                accordeonItem = document.createElement('div')
+                accordeonItem.innerHTML=
+                `<div class="accordion-item">
+                    <h2 class="accordion-header" id="heading` + el.discipline_short_name + `">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse` + el.discipline_short_name + `" aria-expanded="true" aria-controls="collapseOne">
+                            ` + current_discipine + `
+                        </button>
+                    </h2>
+                    <div id="collapse`+ el.discipline_short_name +`" class="accordion-collapse collapse show" aria-labelledby="heading` + el.discipline_short_name + `" data-bs-parent="#accordionRequests">
+                        <div class="accordion-body">
                         </div>
                     </div>
-                </div>
-            `
-            ar.appendChild(newEl)
+                </div>`
+                accordEl.appendChild(accordeonItem)
+                accordeonBody = accordeonItem.getElementsByClassName('accordion-body')[0]
+
+                old_discipine = current_discipine
+            }
+            skydiverElement = document.createElement('div')
+            skydiverElement.innerHTML='<div>' + el.skydiver_name + '</div>'
+            
+            accordeonBody.appendChild(skydiverElement)
         }
             
         return false
-        }
-        searchRequests();
+    }
+    searchRequests();
 </script>
 
 {%endblock%}
-
-<div class="accordion" id="accordionExample">
-    <div class="accordion-item">
-      <h2 class="accordion-header" id="headingOne">
-        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-          Accordion Item #1
-        </button>
-      </h2>
-      <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-        <div class="accordion-body">
-          <strong>This is the first item's accordion body.</strong> It is shown by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
-        </div>
-      </div>
-    </div>
