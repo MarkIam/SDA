@@ -118,7 +118,7 @@ class SkydiverRequest(models.Model):
     status = models.CharField(max_length=3, choices=REQUEST_STATUS, verbose_name='Текущий статус заявки')
 
     def __str__(self):
-        return self.skydiver.last_name
+        return self.skydiver.last_name + ' ' + self.skydiver.first_name + ', ' + self.discipline.name + ', ' + str(self.height)
 
     class Meta:
         verbose_name = 'Заявка'
@@ -172,7 +172,7 @@ class PlaneLift(models.Model):
         ('CNC', 'Отменен')
     ]
     status = models.CharField(max_length=3, choices=LIFT_STATUS, verbose_name='Текущий статус подъема')
-    requests = models.ManyToManyField(to=SkydiverRequest, verbose_name='Заявки в подъеме')
+    request = models.ManyToManyField(to=SkydiverRequest, verbose_name='Заявки в подъеме')
 
     def __str__(self):
         return str(self.ord_number) + ',' + self.plane.reg_number + ',' + self.day.strftime('%d.%m.%Y')

@@ -37,7 +37,7 @@
         </div>
     </form> -->
     <div class="col-3" id="liftsColumn">
-        <h1>Дата</h1><input type='date' id='liftsDate' onchange='searchLifts();'>
+        <h3>Дата</h3><input type='date' id='liftsDate' onchange='searchLifts();'>
         <div id="liftsArea"></div>
     </div>
     <div class="col-9" id="requestsArea">
@@ -50,7 +50,7 @@
         let data  = await response.json()
 
         let  ar = document.getElementById('requestsArea')
-        ar.innerHTML='<h1>Заявки</h1><div class="accordion" id="accordionRequests">'
+        ar.innerHTML='<h3>Заявки</h3><div class="accordion" id="accordionRequests">'
         let accordEl = document.getElementById('accordionRequests')
         let old_discipine = '-'
         let current_discipine = '-'
@@ -63,12 +63,12 @@
                 accordeonItem = document.createElement('div')
                 accordeonItem.innerHTML=
                 `<div class="accordion-item">
-                    <h2 class="accordion-header" id="heading` + el.discipline_short_name + `">
+                    <h3 class="accordion-header" id="heading` + el.discipline_short_name + `">
                         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse` + el.discipline_short_name + 
                         `" aria-expanded="` + (old_discipine == '-' ? 'true' : 'false') + `" aria-controls="collapse` + el.discipline_short_name + `">
                             ` + current_discipine + `
                         </button>
-                    </h2>
+                    </h3>
                     <div id="collapse`+ el.discipline_short_name +`" class="accordion-collapse collapse show" aria-labelledby="heading` + el.discipline_short_name + `" data-bs-parent="#accordionRequests">
                         <div class="accordion-body">
                             <ul id="list-group-` + el.discipline_short_name + `" class="list-group">
@@ -83,7 +83,7 @@
             }
             skydiverElement = document.createElement('li')
             skydiverElement.className = 'list-group-item'
-            skydiverElement.innerHTML= el.skydiver_name
+            skydiverElement.innerHTML= '<div>' + el.skydiver_name + ', ' + el.height + ' м</div><div>' + el.creationStamp + '</div>'
             
             accordeonBody.appendChild(skydiverElement)
         }
@@ -96,20 +96,25 @@
         let data  = await response.json()
 
         let  ar = document.getElementById('liftsArea')
-        ar.innerHTML=`<h1>Подъемы</h1><ul id="liftsGroup" class="list-group"></ul>`
+        ar.innerHTML=`<h3>Подъемы</h3><ul id="liftsGroup" class="list-group"></ul>`
         let parent = document.getElementById('liftsGroup')
 
-        for(let el of data){
-            current_discipine = el.discipline_name
-
-            skydiverElement = document.createElement('li')
-            skydiverElement.className = 'list-group-item'
-            skydiverElement.id = el.id
-            skydiverElement.innerHTML= el.lift_date + ', ' + el.ord_number + ', ' + el.plane_reg_number
-
-            parent.appendChild(skydiverElement)
-        }
+        for(let lift of data){
+            liftElement = document.createElement('li')
+            liftElement.className = 'list-group-item'
+            liftElement.id = lift.id
+            liftElement.innerHTML = '<div>' + lift.ord_number + ', ' + lift.plane_reg_number + '</div>'
             
+            liftElement.innerHTML += '<ul>'
+            for(let req of lift.requests)
+                liftElement.innerHTML += '<li id="req_' + req.id +  '">' + req.name + '</li>'
+            
+            liftElement.innerHTML += '</ul>'
+            parent.appendChild(liftElement)
+        }
+        if (data.length == 0)
+            parent.innerHTML = 'Подъемы отсутствуют'
+
         return false
     }
     

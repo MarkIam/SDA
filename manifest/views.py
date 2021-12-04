@@ -22,14 +22,18 @@ def skydiver_detail(request, id):
 
 def unassigned_requests_list(request):
     queryset = SkydiverRequest.objects.filter(status='CR').order_by('discipline')
+
     ret =[]
     for req in queryset:
-        ret.append({
-            'id':req.id,
-            'skydiver_name':req.skydiver.last_name,
-            'discipline_name':req.discipline.name,
-            'discipline_short_name':req.discipline.short_name
-        })
+        if not (req.planelift_set.exists()):
+            ret.append({
+                'id': req.id,
+                'skydiver_name': req.skydiver.last_name + ' ' + req.skydiver.first_name,
+                'discipline_name': req.discipline.name,
+                'discipline_short_name': req.discipline.short_name,
+                'height': req.height,
+                'creationStamp': req.creationStamp.strftime("%d.%m.%Y, %H:%M")
+            })
     return JsonResponse(ret,safe=False)
 
 def lifts_list(request):
@@ -37,10 +41,17 @@ def lifts_list(request):
     queryset = PlaneLift.objects.filter(day = pDay).filter(~Q(status='CMP') & ~Q(status='CNC')).order_by('ord_number')
     ret =[]
     for lift in queryset:
+        reqs = []
+        for req in lift.request.all():
+            reqs.append({
+                'id': req.id,
+                'name': str(req)
+            })
         ret.append({
             'id':lift.id,
             'ord_number':lift.ord_number,
             'plane_reg_number':lift.plane.reg_number,
-            'lift_date':lift.day
+            'lift_date':lift.day,
+            'requests': reqs
         })
     return JsonResponse(ret,safe=False)
