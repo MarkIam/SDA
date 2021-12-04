@@ -3,6 +3,9 @@ from django.shortcuts import render
 from manifest.models import Skydiver, SkydiverRequest, PlaneLift
 from django.db.models import Q
 
+def vue(request):
+    return render(request, 'vue.html')
+                
 def manifest(request):
     skydivers_list = Skydiver.objects.all()
     return render(request, 'index.html',
@@ -30,7 +33,8 @@ def unassigned_requests_list(request):
     return JsonResponse(ret,safe=False)
 
 def lifts_list(request):
-    queryset = PlaneLift.objects.filter(~Q(status='CMP') & ~Q(status='CNC')).order_by('ord_number')
+    pDay = request.GET.get('pDay', '')
+    queryset = PlaneLift.objects.filter(day = pDay).filter(~Q(status='CMP') & ~Q(status='CNC')).order_by('ord_number')
     ret =[]
     for lift in queryset:
         ret.append({

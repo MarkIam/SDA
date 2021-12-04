@@ -36,7 +36,9 @@
             <input id="requestDate" type="date" />
         </div>
     </form> -->
-    <div class="col-3" id="liftsArea">
+    <div class="col-3" id="liftsColumn">
+        <h1>Дата</h1><input type='date' id='liftsDate' onchange='searchLifts();'>
+        <div id="liftsArea"></div>
     </div>
     <div class="col-9" id="requestsArea">
     </div>
@@ -90,11 +92,11 @@
     }
 
     async function searchLifts(){
-        let response = await fetch('http://127.0.0.1:8000/manifest/lift/json')
+        let response = await fetch('http://127.0.0.1:8000/manifest/lift/json?pDay=' + document.getElementById('liftsDate').value)
         let data  = await response.json()
 
         let  ar = document.getElementById('liftsArea')
-        ar.innerHTML='<h1>Подъемы</h1><ul id="liftsGroup" class="list-group"></ul>'
+        ar.innerHTML=`<h1>Подъемы</h1><ul id="liftsGroup" class="list-group"></ul>`
         let parent = document.getElementById('liftsGroup')
 
         for(let el of data){
@@ -110,8 +112,17 @@
             
         return false
     }
-    searchRequests();
+    
+    let liftsDateCtrl = document.getElementById('liftsDate')
+    
+    let today = new Date();
+    let mm = today.getMonth() + 1;
+    let dd = today.getDate();
+
+    liftsDateCtrl.value = today.getFullYear() + '-' + (mm>9 ? '' : '0') + mm + '-' + (dd>9 ? '' : '0') + dd;
     searchLifts();
+
+    searchRequests();
 </script>
 
 {%endblock%}
