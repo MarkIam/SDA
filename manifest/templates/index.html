@@ -61,29 +61,30 @@
             current_discipine = el.discipline_name
             if (current_discipine != old_discipine){
                 accordeonItem = document.createElement('div')
-                accordeonItem.innerHTML=
-                `<div class="accordion-item">
-                    <h3 class="accordion-header" id="heading` + el.discipline_short_name + `">
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse` + el.discipline_short_name + 
+                accordeonItem.className='accordion-item'
+                accordeonItem.innerHTML = 
+                    `<h3 class="accordion-header" id="heading` + el.discipline_short_name + `">
+                        <button class="accordion-button` + (old_discipine == '-' ? '' : ' collapsed') + `" type="button" data-bs-toggle="collapse" data-bs-target="#collapse` + el.discipline_short_name + 
                         `" aria-expanded="` + (old_discipine == '-' ? 'true' : 'false') + `" aria-controls="collapse` + el.discipline_short_name + `">
                             ` + current_discipine + `
                         </button>
                     </h3>
-                    <div id="collapse`+ el.discipline_short_name +`" class="accordion-collapse collapse show" aria-labelledby="heading` + el.discipline_short_name + `" data-bs-parent="#accordionRequests">
+                    <div id="collapse`+ el.discipline_short_name +`" class="accordion-collapse collapse` + (old_discipine == '-' ? ' show' : '') + `" aria-labelledby="heading` + el.discipline_short_name + `" data-bs-parent="#accordionRequests">
                         <div class="accordion-body">
                             <ul id="list-group-` + el.discipline_short_name + `" class="list-group">
                             </ul>
                         </div>
-                    </div>
-                </div>`
+                    </div>`
                 accordEl.appendChild(accordeonItem)
                 accordeonBody = accordeonItem.getElementsByClassName('list-group')[0]
 
                 old_discipine = current_discipine
             }
             skydiverElement = document.createElement('li')
+            skydiverElement.id = 'req_' + el.id
             skydiverElement.className = 'list-group-item'
-            skydiverElement.innerHTML= '<div>' + el.skydiver_name + ', ' + el.height + ' м</div><div>' + el.creationStamp + '</div>'
+            skydiverElement.innerHTML= '<a class="btn btn-primary" href="#" role="button">&lt;</a>'+
+                                        '<div>' + el.skydiver_name + ', ' + el.height + ' м</div><div>' + el.creationStamp + '</div>'
             
             accordeonBody.appendChild(skydiverElement)
         }
@@ -96,21 +97,40 @@
         let data  = await response.json()
 
         let  ar = document.getElementById('liftsArea')
-        ar.innerHTML=`<h3>Подъемы</h3><ul id="liftsGroup" class="list-group"></ul>`
+        ar.innerHTML=`<h3>Подъемы</h3><div class="accordion" id="liftsGroup">`
         let parent = document.getElementById('liftsGroup')
 
+        let isFirst = true
         for(let lift of data){
-            liftElement = document.createElement('li')
-            liftElement.className = 'list-group-item'
+            liftElement = document.createElement('div')
+            liftElement.className='accordion-item'
             liftElement.id = lift.id
-            liftElement.innerHTML = '<div>' + lift.ord_number + ', ' + lift.plane_reg_number + '</div>'
-            
-            liftElement.innerHTML += '<ul>'
-            for(let req of lift.requests)
-                liftElement.innerHTML += '<li id="req_' + req.id +  '">' + req.name + '</li>'
-            
-            liftElement.innerHTML += '</ul>'
+            liftElement.innerHTML = `<h3 class="accordion-header" id="heading` + lift.plane_reg_number + `_` + lift.ord_number + `">
+                        <button class="accordion-button` + (isFirst ? '' : ' collapsed') + `" type="button" data-bs-toggle="collapse" data-bs-target="#collapse` + lift.plane_reg_number + `_` + lift.ord_number + 
+                        `" aria-expanded="` + (isFirst ? 'true' : 'false') + `" aria-controls="collapse` + + lift.plane_reg_number + `_` + lift.ord_number + `">
+                            `+ lift.ord_number + ', ' + lift.plane_reg_number + `
+                        </button>
+                    </h3>
+                    <div id="collapse` + lift.plane_reg_number + `_` + lift.ord_number + `" class="accordion-collapse collapse` + (isFirst ? ' show' : '') + `" 
+                        aria-labelledby="heading` + lift.plane_reg_number + `_` + lift.ord_number + `" data-bs-parent="#liftsGroup">
+                        <div class="accordion-body">
+                            <ul id="list-group-` + lift.plane_reg_number + `_` + lift.ord_number + `" class="list-group">
+                            </ul>
+                        </div>
+                    </div>`
             parent.appendChild(liftElement)
+            accordeonBody = liftElement.getElementsByClassName('list-group')[0]
+
+            for(let req of lift.requests){
+                requestElement = document.createElement('li')
+                requestElement.id = 'req_' + req.id
+                requestElement.className = 'list-group-item'
+                requestElement.innerHTML= '<div>' + req.name + '</div>'+
+                                          '<a class="btn btn-primary" href="#" role="button">&gt;</a>'
+                
+                accordeonBody.appendChild(requestElement)
+            }
+            isFirst = false
         }
         if (data.length == 0)
             parent.innerHTML = 'Подъемы отсутствуют'
