@@ -2,6 +2,8 @@ from django.contrib import admin
 from django.urls import path
 from manifest.views import manifest, skydiver_detail, unassigned_requests_list, lifts_list, vue, bind_request_to_lift
 from django.urls import include, path
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -13,3 +15,4 @@ urlpatterns = [
     path('manifest/lift/json', lifts_list),
     path('bind_request_to_lift/', bind_request_to_lift)
 ]
+urlpatterns+=static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
