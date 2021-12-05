@@ -1,3 +1,4 @@
+import json
 from django.http import JsonResponse
 from django.shortcuts import render
 from manifest.models import Skydiver, SkydiverRequest, PlaneLift
@@ -55,3 +56,22 @@ def lifts_list(request):
             'requests': reqs
         })
     return JsonResponse(ret,safe=False)
+
+def bind_request_to_lift(request):
+    data =(json.loads(request.body))
+    request_id = data['request_id']
+    lift_id = data['lift_id']
+    is_bind = data['is_bind']
+
+    lift = PlaneLift.objects.get(pk=lift_id)
+    request = SkydiverRequest.objects.get(pk=request_id)
+    try:
+        if (is_bind):
+            lift.request.add(request)
+        else:
+            lift.request.remove(request)
+        lift.save()
+    except Exception:
+        return JsonResponse({'status':'not OK'})
+    
+    return JsonResponse({'status':'OK'})

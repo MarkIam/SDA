@@ -83,7 +83,7 @@
             skydiverElement = document.createElement('li')
             skydiverElement.id = 'req_' + el.id
             skydiverElement.className = 'list-group-item'
-            skydiverElement.innerHTML= '<a class="btn btn-primary" href="#" role="button">&lt;</a>'+
+            skydiverElement.innerHTML= '<button class="btn btn-primary" onclick="BindRequestToLift(this, true)">&lt;</button>'+
                                         '<div>' + el.skydiver_name + ', ' + el.height + ' м</div><div>' + el.creationStamp + '</div>'
             
             accordeonBody.appendChild(skydiverElement)
@@ -104,7 +104,7 @@
         for(let lift of data){
             liftElement = document.createElement('div')
             liftElement.className='accordion-item'
-            liftElement.id = lift.id
+            liftElement.id = 'lift_' + lift.id
             liftElement.innerHTML = `<h3 class="accordion-header" id="heading` + lift.plane_reg_number + `_` + lift.ord_number + `">
                         <button class="accordion-button` + (isFirst ? '' : ' collapsed') + `" type="button" data-bs-toggle="collapse" data-bs-target="#collapse` + lift.plane_reg_number + `_` + lift.ord_number + 
                         `" aria-expanded="` + (isFirst ? 'true' : 'false') + `" aria-controls="collapse` + + lift.plane_reg_number + `_` + lift.ord_number + `">
@@ -126,7 +126,7 @@
                 requestElement.id = 'req_' + req.id
                 requestElement.className = 'list-group-item'
                 requestElement.innerHTML= '<div>' + req.name + '</div>'+
-                                          '<a class="btn btn-primary" href="#" role="button">&gt;</a>'
+                                          '<button class="btn btn-primary"onclick="BindRequestToLift(this, false)">&gt;</button>'
                 
                 accordeonBody.appendChild(requestElement)
             }
@@ -138,6 +138,37 @@
         return false
     }
     
+    async function BindRequestToLift(elem, pIsBind)
+    {
+        let selectedLift = document.querySelectorAll('#liftsGroup .accordion-item button[aria-expanded="true"]')
+        if (selectedLift.length == 0){
+            alert('Не выбран подъем для включения заявки.');
+            return;
+        }
+        let liftId = document.querySelectorAll('#liftsGroup .accordion-item button[aria-expanded="true"]')[0].parentElement.parentElement.id.substr(5)
+        
+        let requestId = elem.parentElement.id.substr(4)
+
+        let response = await fetch('http://127.0.0.1:8000/bind_request_to_lift/', {
+                                        method: 'POST',
+                                        headers: {
+                                            'X-CSRFToken': "{{ csrf_token }}",
+                                            'Content-Type': 'application/json;charset=utf-8'
+                                        },
+                                            body: JSON.stringify({request_id: requestId,
+                                                                  lift_id: liftId,
+                                                                  is_bind: pIsBind })
+                                        });
+
+        let status = await response.json()
+        if (status.status=='OK'){
+            searchLifts();
+            searchRequests();
+        }
+        else
+            alert('При выполнении операции произошла ошибка.')
+    }
+
     let liftsDateCtrl = document.getElementById('liftsDate')
     
     let today = new Date();

@@ -1,21 +1,6 @@
-"""sda URL Configuration
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/3.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path
-from manifest.views import manifest, skydiver_detail, unassigned_requests_list, lifts_list, vue
+from manifest.views import manifest, skydiver_detail, unassigned_requests_list, lifts_list, vue, bind_request_to_lift
 from django.urls import include, path
 
 urlpatterns = [
@@ -25,5 +10,6 @@ urlpatterns = [
     path('manifest/skydivers', manifest),
     path('skydiver/<int:id>/', skydiver_detail, name = "skydiver_detail"),
     path('manifest/request/json', unassigned_requests_list),
-    path('manifest/lift/json', lifts_list)
+    path('manifest/lift/json', lifts_list),
+    path('bind_request_to_lift/', bind_request_to_lift)
 ]
