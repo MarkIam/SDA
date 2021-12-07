@@ -7,24 +7,28 @@
         <h3>Дата</h3>
         <input type='date' v-model="currentDay" id='liftsDate' v-on:change='getLifts'>
         <div id="liftsArea">
-            <div class="accordion-item" v-for="(lift, index) in liftsList" :key="lift.id">
-                <h3 class="accordion-header" :id="'heading' + lift.plane_reg_number + '_' + lift.ord_number">
-                    <button class="accordion-button" :class="index == 0 ? '' : 'collapsed'" type="button"
-                            data-bs-toggle="collapse" :data-bs-target="'#collapse' + lift.plane_reg_number + '_' + lift.ord_number"
-                            :aria-expanded=" index == 0 ? 'true' : 'false'" :aria-controls="'collapse' + lift.plane_reg_number + '_' + lift.ord_number">
-                        {{ lift.ord_number }}. {{ lift.plane_reg_number }}
-                    </button>
-                </h3>
-                <div :id="'collapse' + lift.plane_reg_number + '_' + lift.ord_number"
-                    class="accordion-collapse collapse" :class=" index == 0 ? 'show' : ''"
-                    :aria-labelledby="'heading' + lift.plane_reg_number + '_' + lift.ord_number" data-bs-parent="#liftsGroup">
-                    <div class="accordion-body">
-                        <ul :id="'list-group-' + lift.plane_reg_number + '_' + lift.ord_number" class="list-group">
-                            <li v-for="request in lift.requests" :key="request.id" :id="'req_' + request.id" class="list-group-item">
-                                <div>{{ request.name }}</div>
-                            </li>
-                        </ul>
-                        <div v-if="lift.requests.length == 0">Заявки отсутствуют.</div>
+            <h3>Подъемы</h3>
+            <div class="accordion" id="liftsGroup">
+                <div class="accordion-item" :id="'lift_' + lift.id" v-for="(lift, index) in liftsList" :key="lift.id">
+                    <h3 class="accordion-header" :id="'heading' + lift.plane_reg_number + '_' + lift.ord_number">
+                        <button class="accordion-button" :class="index == 0 ? '' : 'collapsed'" type="button"
+                                data-bs-toggle="collapse" :data-bs-target="'#collapse' + lift.plane_reg_number + '_' + lift.ord_number"
+                                :aria-expanded=" index == 0 ? 'true' : 'false'" :aria-controls="'collapse' + lift.plane_reg_number + '_' + lift.ord_number">
+                            {{ lift.ord_number }}. {{ lift.plane_reg_number }}
+                        </button>
+                    </h3>
+                    <div :id="'collapse' + lift.plane_reg_number + '_' + lift.ord_number"
+                        class="accordion-collapse collapse" :class=" index == 0 ? 'show' : ''"
+                        :aria-labelledby="'heading' + lift.plane_reg_number + '_' + lift.ord_number" data-bs-parent="#liftsGroup">
+                        <div class="accordion-body">
+                            <ul :id="'list-group-' + lift.plane_reg_number + '_' + lift.ord_number" class="list-group">
+                                <li v-for="request in lift.requests" :key="request.id" :id="'req_' + request.id" class="list-group-item">
+                                    <div>{{ request.name }}</div>
+                                    <button class="btn btn-primary"onclick="BindRequestToLift(this, false)">&gt;</button>
+                                </li>
+                            </ul>
+                            <div v-if="lift.requests.length == 0">Заявки отсутствуют.</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -32,6 +36,30 @@
         </div>
     </div>
     <div class="col-9" id="requestsArea">
+        <h3>Заявки</h3>
+        <div class="accordion" id="accordionRequests">
+            <div class="accordion-item" v-for="(disc, index) in disciplinesList" :key="disc.id">
+                <h3 class="accordion-header" :id="'heading' + disc.discipline_short_name">
+                    <button class="accordion-button" :class="index == 0 ? '' : 'collapsed'" type="button"
+                            data-bs-toggle="collapse" :data-bs-target="'#collapse' + disc.discipline_short_name"
+                            :aria-expanded=" index == 0 ? 'true' : 'false'" :aria-controls="'collapse' + disc.discipline_short_name">
+                        {{ disc.discipline_name }}
+                    </button>
+                </h3>
+                <div :id="'collapse' + disc.discipline_short_name"
+                    class="accordion-collapse collapse" :class=" index == 0 ? 'show' : ''"
+                    :aria-labelledby="'heading' + disc.discipline_short_name" data-bs-parent="#accordionRequests">
+                    <div class="accordion-body">
+                        <ul :id="'list-group-' + disc.discipline_short_name" class="list-group">
+                            <li v-for="request in disc.requests" :key="request.id" :id="'req_' + request.id" class="list-group-item">
+                                <button class="btn btn-primary" onclick="BindRequestToLift(this, true)">&lt;</button>
+                                <div> {{ request.skydiver_name }}, {{ request.height }} м</div><div> {{ request.creationStamp }}</div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     {% endverbatim%}
 </div>

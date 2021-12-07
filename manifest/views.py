@@ -24,17 +24,36 @@ def skydiver_detail(request, id):
 def unassigned_requests_list(request):
     queryset = SkydiverRequest.objects.filter(status='CR').order_by('discipline')
 
+    current_discipline_id = -1
     ret =[]
+    request_pool =[]
     for req in queryset:
         if not (req.planelift_set.exists()):
-            ret.append({
+            if req.discipline.id != current_discipline_id:
+                if current_discipline_id != -1:
+                    current_discipline['requests'] = request_pool
+                    ret.append(current_discipline)
+
+                current_discipline = {
+                        'id': req.discipline.id,
+                        'discipline_name': req.discipline.name,
+                        'discipline_short_name': req.discipline.short_name,
+                        'requests': []
+                    }
+                current_discipline_id = req.discipline.id
+                request_pool =[]
+
+            request_pool.append({
                 'id': req.id,
                 'skydiver_name': req.skydiver.last_name + ' ' + req.skydiver.first_name,
-                'discipline_name': req.discipline.name,
-                'discipline_short_name': req.discipline.short_name,
+                'discipline_id': req.discipline.id,
                 'height': req.height,
                 'creationStamp': req.creationStamp.strftime("%d.%m.%Y, %H:%M")
             })
+    
+    current_discipline['requests'] = request_pool
+    ret.append(current_discipline)
+
     return JsonResponse(ret,safe=False)
 
 def lifts_list(request):
