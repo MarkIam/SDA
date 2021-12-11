@@ -59,7 +59,7 @@ def unassigned_requests_list(request):
 def lifts_list(request):
     pDay = request.GET.get('pDay', '')
     queryset = PlaneLift.objects.filter(day = pDay).filter(~Q(status='CMP') & ~Q(status='CNC')).order_by('ord_number')
-    ret =[]
+    ret = []
     for lift in queryset:
         reqs = []
         for req in lift.request.all():
@@ -72,7 +72,8 @@ def lifts_list(request):
             'ord_number':lift.ord_number,
             'plane_reg_number':lift.plane.reg_number,
             'lift_date':lift.day,
-            'requests': reqs
+            'requests': reqs,
+            'visible': True if len(ret) == 0 else False
         })
     return JsonResponse(ret,safe=False)
 

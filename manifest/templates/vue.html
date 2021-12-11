@@ -1,0 +1,37 @@
+<html>
+    <head>
+    </head>
+    <body>
+        {% verbatim %}
+        <div id="app">
+            <ul>
+                <li v-for="product in products">
+                    <input type="number" v-model.number="product.quantity" />
+                    <span>{{ product.name }}</span>
+                </li>
+            </ul>
+            <h2>Total {{totalProducts}}</h2>
+        </div>
+        <script src="https://unpkg.com/vue"></script>
+        <script>
+            const app = new Vue({
+                el: '#app',
+                data: {
+                    products: [
+                        {name: 'Boots', quantity: 1},
+                        {name: 'Sneakers', quantity: 2},
+                        {name: 'Jeans', quantity: 3}
+                    ]
+                },
+                computed:{
+                    totalProducts() {
+                        return this.products.reduce((sum, product) => {
+                            return sum + product.quantity
+                        }, 0)
+                    }
+                }
+            })
+        </script>
+        {% endverbatim %}
+    </body>
+</html>
