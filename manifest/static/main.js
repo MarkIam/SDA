@@ -8,18 +8,22 @@ Vue.component('lift-item', {
                  </b-card-header>
                  <b-collapse :id="'accordion-' + lift.id" accordion="lifts-accordion" v-model:visible="lift.visible" role="tabpanel">
                    <b-card-body>
-                     <b-list-group :id="'list-group-' + lift.id">
-                       <lift-request-list-item
-                            v-for="request in lift.requests"
-                            v-bind:key="request.id"
-                            v-bind:request="request"
-                            v-bind:lift_id="lift.id">
-                       </lift-request-list-item>
-                     </b-list-group>
+                     <draggable v-model="lift.requests" group="requests" @start="drag=true" @end="onDragEnd">
+                       <div v-for="request in lift.requests" :key="request.id">
+                         {{ request.skydiver_name }}, {{ request.height }} м
+                         <div> {{ request.discipline_name}}, {{ request.creationStamp }}</div>
+                       </div>
+                     </draggable>
                      <div v-if="lift.requests.length==0">Заявки отсутствуют.</div>
                    </b-card-body>
                  </b-collapse>
-               </b-card>`
+               </b-card>`,
+    methods: {
+        onDragEnd(event){
+            let fromRequestElement = event.from.__vue__.context.element
+            this.$root.$emit('bind-request', false, this['lift'].id, fromRequestElement.id, fromRequestElement.discipline_id);
+        }
+    }
 });
 
 Vue.component('lift-request-list-item', {
@@ -108,54 +112,18 @@ var app = new Vue({
                                             });
 
             let resp = await response.json()
-            if (resp.status=='OK'){
-                if (pIsBind){
-                    try{
-                        var selectedDisc = this.disciplinesList.filter(disc => {
-                            return disc.id === discipline_id
-                        })[0]
-                        var selectedReq = selectedDisc.requests.filter(req => {
-                            return req.id === requestId
-                        })[0]
-
-                        selectedLift.requests.push(selectedReq)
-                        var index = selectedDisc.requests.indexOf(selectedReq);
-                        if (index !== -1)
-                            selectedDisc.requests.splice(index, 1)
-                    }
-                    catch (e){
-                        alert(e.message)
-                    }
-                }
-                else{
-                    var selectedReq = selectedLift.requests.filter(req => {
-                        return req.id === requestId
-                    })[0]
-                    var selectedDisc = this.disciplinesList.filter(disc => {
-                        return disc.id === discipline_id
-                    })[0]
-                    if (!selectedDisc)
-                    {
-                        selectedDisc = {
-                            id: discipline_id,
-                            discipline_name: selectedReq.discipline_name,
-                            requests: []
-                        }
-                        this.disciplinesList.push(selectedDisc)
-                    }
-                    selectedDisc.requests.push(selectedReq)
-                    var index = selectedLift.requests.indexOf(selectedReq);
-                    if (index !== -1)
-                        selectedLift.requests.splice(index, 1)
-                }
-            }
-            else
+            if (resp.status != 'OK')
                 alert('При выполнении операции произошла ошибка.')
+            else
+                this.getRequests()
+        },
+        onDragEnd(event){
+            let fromRequestElement = event.from.__vue__.context.element
+            this.BindRequestToLift(true, -1, fromRequestElement.id, fromRequestElement.discipline_id)
         }
     },
     created(){
         this.$root.$on('bind-request', (isBind, liftId, requestId, disciplineId) => {
-            //console.log('isBind='+isBind+', liftId='+lifId+' ,requestId='+requestId);
             this.BindRequestToLift(isBind, liftId, requestId, disciplineId)
         })
 

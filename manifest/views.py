@@ -1,7 +1,7 @@
 import json
 from django.http import JsonResponse
 from django.shortcuts import render
-from manifest.models import Skydiver, SkydiverRequest, PlaneLift
+from manifest.models import Skydiver, SkydiverRequest, PlaneLift, SkydiveDiscipline
 from django.db.models import Q
 
 def vue(request):
@@ -22,23 +22,32 @@ def skydiver_detail(request, id):
                 })
 
 def unassigned_requests_list(request):
-    queryset = SkydiverRequest.objects.filter(status='CR').order_by('discipline')
-
+    discQueryset = SkydiveDiscipline.objects.all().order_by('id')
+    
+    disc_list =[]
+    for disc in discQueryset:
+        disc_list.append({
+                    'id': disc.id,
+                    'discipline_name': disc.short_name,
+                    'requests': [] })
+    
     current_discipline_id = -1
-    ret =[]
+    current_discipline = {}
     request_pool =[]
-    for req in queryset:
+
+    reqQueryset = SkydiverRequest.objects.filter(status='CR').order_by('discipline')
+    for req in reqQueryset:
         if not (req.planelift_set.exists()):
             if req.discipline.id != current_discipline_id:
                 if current_discipline_id != -1:
                     current_discipline['requests'] = request_pool
-                    ret.append(current_discipline)
 
-                current_discipline = {
-                        'id': req.discipline.id,
-                        'discipline_name': req.discipline.name,
-                        'requests': []
-                    }
+                for index, item in enumerate(disc_list):
+                    if item['id'] == req.discipline.id:
+                        break
+                else:
+                    index = -1
+                current_discipline = disc_list[index]
                 current_discipline_id = req.discipline.id
                 request_pool =[]
 
@@ -52,9 +61,8 @@ def unassigned_requests_list(request):
             })
     
     current_discipline['requests'] = request_pool
-    ret.append(current_discipline)
 
-    return JsonResponse(ret,safe=False)
+    return JsonResponse(disc_list, safe=False)
 
 def lifts_list(request):
     pDay = request.GET.get('pDay', '')

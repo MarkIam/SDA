@@ -22,12 +22,13 @@
         <h3>Заявки</h3>
         <b-tabs content-class="mt-3">
             <b-tab v-for="(disc, index) in disciplinesList" :key="disc.id" :title="disc.discipline_name + ' (' + disc.requests.length + ')'">
-                <b-list-group>
-                    <disc-request-list-item v-for="request in disc.requests"
-                                            v-bind:key="request.id"
-                                            v-bind:request="request">
-                    </disc-request-list-item>
-                </b-list-group>
+                <draggable v-model="disc.requests" group="requests" @start="drag=true" @end="onDragEnd">
+                    <div v-for="request in disc.requests" :key="request.id">
+                        {{ request.skydiver_name }}, {{ request.height }} м
+                        <div> {{ request.creationStamp }}</div>
+                    </div>
+                </draggable>
+                <div v-if="disc.requests == 0">Заявки отсутствуют.</div>
             </b-tab>
         </b-tabs>
     </div>
