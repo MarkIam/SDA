@@ -37,7 +37,6 @@ def unassigned_requests_list(request):
                 current_discipline = {
                         'id': req.discipline.id,
                         'discipline_name': req.discipline.name,
-                        'discipline_short_name': req.discipline.short_name,
                         'requests': []
                     }
                 current_discipline_id = req.discipline.id
@@ -47,6 +46,7 @@ def unassigned_requests_list(request):
                 'id': req.id,
                 'skydiver_name': req.skydiver.last_name + ' ' + req.skydiver.first_name,
                 'discipline_id': req.discipline.id,
+                'discipline_name': req.discipline.name,
                 'height': req.height,
                 'creationStamp': req.creationStamp.strftime("%d.%m.%Y, %H:%M")
             })
@@ -65,7 +65,11 @@ def lifts_list(request):
         for req in lift.request.all():
             reqs.append({
                 'id': req.id,
-                'name': str(req)
+                'skydiver_name': req.skydiver.last_name + ' ' + req.skydiver.first_name,
+                'discipline_id': req.discipline.id,
+                'discipline_name': req.discipline.name,
+                'height': req.height,
+                'creationStamp': req.creationStamp.strftime("%d.%m.%Y, %H:%M")
             })
         ret.append({
             'id':lift.id,

@@ -25,12 +25,13 @@ Vue.component('lift-item', {
 Vue.component('lift-request-list-item', {
     props: ['request', 'lift_id'],
     template: `<b-list-group-item :id="'req_' + request.id">
-                    <div>{{ request.name }}</div>
+                    <div>{{ request.discipline_name }}, {{ request.skydiver_name }}</div>
+                    <div> {{ request.height }} м</div>
                     <button class="btn btn-primary" v-on:click="UnbindRequestFromLift">&gt;</button>
                 </b-list-group-item>`,
     methods: {
         UnbindRequestFromLift: function () {
-            this.$root.$emit('bind-request', false, this['lift_id'], this['request'].id);
+            this.$root.$emit('bind-request', false, this['lift_id'], this['request'].id, this['request'].discipline_id);
         }
     }
 });
@@ -47,7 +48,7 @@ Vue.component('disc-request-list-item', {
                </b-list-group-item>`,
     methods: {
         BindRequestToLift: function () {
-            this.$root.$emit('bind-request', true, -1, this['request'].id)
+            this.$root.$emit('bind-request', true, -1, this['request'].id, this['request'].discipline_id)
         }
     }
 });
@@ -83,15 +84,16 @@ var app = new Vue({
             }
             return cookieValue;
         },
-        async BindRequestToLift(pIsBind, liftId, requestId){
-            var selectedLift = this.liftsList.filter(lift => {
+        async BindRequestToLift(pIsBind, liftId, requestId, discipline_id){
+            let selectedLifts = this.liftsList.filter(lift => {
                 return lift.visible === true
-              })
-            if (selectedLift.length == 0){
+            })
+            if (selectedLifts.length == 0){
                 alert('Не выбран подъем для включения заявки.');
                 return;
             }
-            liftId = selectedLift[0].id
+            let selectedLift = selectedLifts[0]
+            liftId = selectedLift.id
             
             const csrftoken = this.getCookie('csrftoken');
             let response = await fetch('/bind_request_to_lift/', {
@@ -107,17 +109,54 @@ var app = new Vue({
 
             let resp = await response.json()
             if (resp.status=='OK'){
-                this.getLifts();
-                this.getRequests();
+                if (pIsBind){
+                    try{
+                        var selectedDisc = this.disciplinesList.filter(disc => {
+                            return disc.id === discipline_id
+                        })[0]
+                        var selectedReq = selectedDisc.requests.filter(req => {
+                            return req.id === requestId
+                        })[0]
+
+                        selectedLift.requests.push(selectedReq)
+                        var index = selectedDisc.requests.indexOf(selectedReq);
+                        if (index !== -1)
+                            selectedDisc.requests.splice(index, 1)
+                    }
+                    catch (e){
+                        alert(e.message)
+                    }
+                }
+                else{
+                    var selectedReq = selectedLift.requests.filter(req => {
+                        return req.id === requestId
+                    })[0]
+                    var selectedDisc = this.disciplinesList.filter(disc => {
+                        return disc.id === discipline_id
+                    })[0]
+                    if (!selectedDisc)
+                    {
+                        selectedDisc = {
+                            id: discipline_id,
+                            discipline_name: selectedReq.discipline_name,
+                            requests: []
+                        }
+                        this.disciplinesList.push(selectedDisc)
+                    }
+                    selectedDisc.requests.push(selectedReq)
+                    var index = selectedLift.requests.indexOf(selectedReq);
+                    if (index !== -1)
+                        selectedLift.requests.splice(index, 1)
+                }
             }
             else
                 alert('При выполнении операции произошла ошибка.')
         }
     },
     created(){
-        this.$root.$on('bind-request', (isBind, liftId, requestId) => {
+        this.$root.$on('bind-request', (isBind, liftId, requestId, disciplineId) => {
             //console.log('isBind='+isBind+', liftId='+lifId+' ,requestId='+requestId);
-            this.BindRequestToLift(isBind, liftId, requestId)
+            this.BindRequestToLift(isBind, liftId, requestId, disciplineId)
         })
 
         let today = new Date();
