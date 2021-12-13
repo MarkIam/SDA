@@ -3,6 +3,8 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from manifest.models import Skydiver, SkydiverRequest, PlaneLift, SkydiveDiscipline
 from django.db.models import Q
+from manifest.serializers import SkydiverRequestSerializer, SkydiveDisciplineSerializer
+
 
 def vue(request):
     return render(request, 'vue.html')
@@ -107,3 +109,13 @@ def bind_request_to_lift(request):
         return JsonResponse({'status':'not OK'})
     
     return JsonResponse({'status':'OK'})
+
+from rest_framework import viewsets
+
+class SkydiverRequestViewSet(viewsets.ModelViewSet):
+    queryset = SkydiverRequest.objects.filter(planelift__isnull=True)
+    serializer_class = SkydiverRequestSerializer
+
+class SkydiveDisciplineViewSet(viewsets.ModelViewSet):
+    queryset = SkydiveDiscipline.objects.all()
+    serializer_class = SkydiveDisciplineSerializer
