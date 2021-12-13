@@ -8,7 +8,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('polls/', include('polls.urls')),
-    path('', vue),
+    path('', manifest),
     path('manifest/skydivers', manifest),
     path('skydiver/<int:id>/', skydiver_detail, name = "skydiver_detail"),
     path('manifest/request/json', unassigned_requests_list),
