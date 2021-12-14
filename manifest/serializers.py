@@ -12,7 +12,13 @@ class SkydiverRequestSerializer(serializers.ModelSerializer):
         fields = ['id', 'skydiver_last_name', 'skydiver_first_name', 'discipline_id', 'discipline_name', 'height', 'creationStamp']
 
 class SkydiveDisciplineSerializer(serializers.ModelSerializer):
-    skydiverrequest_set = SkydiverRequestSerializer(many=True)
+    #skydiverrequest_set = SkydiverRequestSerializer(many=True)
+    skydiverrequest_set = serializers.SerializerMethodField(method_name='active_requests')
+    
+    def active_requests(self, ownerObj):
+        queryset = SkydiverRequest.objects.filter(discipline__id = ownerObj.id).filter(planelift__isnull=True).order_by('id')
+        return SkydiverRequestSerializer(queryset, many=True).data
+
     class Meta:
         model = SkydiveDiscipline
         fields = ['id', 'name', 'short_name', 'skydiverrequest_set']
