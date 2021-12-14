@@ -21,14 +21,14 @@
     <div class="col-9" id="requestsArea">
         <h3>Заявки</h3>
         <b-tabs content-class="mt-3">
-            <b-tab v-for="(disc, index) in disciplinesList" :key="disc.id" :title="disc.discipline_name + ' (' + disc.requests.length + ')'">
-                <draggable v-model="disc.requests" group="requests" @start="drag=true" @end="onDragEnd">
-                    <div v-for="request in disc.requests" :key="request.id">
-                        {{ request.skydiver_name }}, {{ request.height }} м
+            <b-tab v-for="(disc, index) in disciplinesList" :key="disc.id" :title="disc.short_name + ' (' + disc.skydiverrequest_set.length + ')'">
+                <draggable v-model="disc.skydiverrequest_set" group="requests" @start="drag=true" @end="onDragEnd">
+                    <div v-for="request in disc.skydiverrequest_set" :key="request.id">
+                        {{ request.skydiver_last_name }} {{ request.skydiver_first_name }}, {{ request.height }} м
                         <div> {{ request.creationStamp }}</div>
                     </div>
                 </draggable>
-                <div v-if="disc.requests == 0">Заявки отсутствуют.</div>
+                <div v-if="disc.skydiverrequest_set == 0">Заявки отсутствуют.</div>
             </b-tab>
         </b-tabs>
     </div>

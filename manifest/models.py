@@ -15,9 +15,6 @@ class Skydiver(models.Model):
     def __str__(self):
         return self.last_name + ' ' + self.first_name
 
-    def get_absolute_url(self):
-        pass
-
     class Meta:
         verbose_name = 'Клиент'
         verbose_name_plural = 'Клиенты'
@@ -120,6 +117,9 @@ class SkydiverRequest(models.Model):
     def __str__(self):
         return self.skydiver.last_name + ' ' + self.skydiver.first_name + ', ' + self.discipline.name + ', ' + str(self.height)
 
+    def IsInAnyLift(self):
+        return SkydiverRequest.objects.filter(id = self.id).filter(planelift__isnull = False).count() > 0
+
     class Meta:
         verbose_name = 'Заявка'
         verbose_name_plural = 'Заявки'
@@ -132,7 +132,6 @@ class RequestService(models.Model):
     class Meta:
         verbose_name = 'Услуга в заявке'
         verbose_name_plural = 'Услуги в заявке'
-
 
 class PlaneType(models.Model):
     name = models.CharField(max_length=64, verbose_name='Название типа воздушного судна')

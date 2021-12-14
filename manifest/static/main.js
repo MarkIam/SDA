@@ -8,13 +8,13 @@ Vue.component('lift-item', {
                  </b-card-header>
                  <b-collapse :id="'accordion-' + lift.id" accordion="lifts-accordion" v-model:visible="lift.visible" role="tabpanel">
                    <b-card-body>
-                     <draggable v-model="lift.requests" group="requests" @start="drag=true" @end="onDragEnd">
-                       <div v-for="request in lift.requests" :key="request.id">
-                         {{ request.skydiver_name }}, {{ request.height }} м
+                     <draggable v-model="lift.request" group="requests" @start="drag=true" @end="onDragEnd">
+                       <div v-for="request in lift.request" :key="request.id">
+                       {{ request.skydiver_last_name }} {{ request.skydiver_first_name }}, {{ request.height }} м
                          <div> {{ request.discipline_name}}, {{ request.creationStamp }}</div>
                        </div>
                      </draggable>
-                     <div v-if="lift.requests.length==0">Заявки отсутствуют.</div>
+                     <div v-if="lift.request.length==0">Заявки отсутствуют.</div>
                    </b-card-body>
                  </b-collapse>
                </b-card>`,
@@ -66,11 +66,11 @@ var app = new Vue({
     },
     methods:{
         async getRequests(){
-            let response = await fetch('/manifest/request/json')
+            let response = await fetch('/api/discipline/')
             this.disciplinesList = await response.json()
         },
         async getLifts(){
-            let response = await fetch('/manifest/lift/json?pDay=' + this.currentDay)
+            let response = await fetch('/api/lift/?pDay=' + this.currentDay)
             this.liftsList = await response.json()
         },
         getCookie(name) {

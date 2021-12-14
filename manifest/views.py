@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from manifest.models import Skydiver, SkydiverRequest, PlaneLift, SkydiveDiscipline
 from django.db.models import Q
-from manifest.serializers import SkydiverRequestSerializer, SkydiveDisciplineSerializer
+from manifest.serializers import SkydiverRequestSerializer, SkydiveDisciplineSerializer, PlaneLiftSerializer
 
 
 def vue(request):
@@ -22,74 +22,6 @@ def skydiver_detail(request, id):
                 {
                   'skydiver': skydiver
                 })
-
-def unassigned_requests_list(request):
-    discQueryset = SkydiveDiscipline.objects.all().order_by('id')
-    
-    disc_list =[]
-    for disc in discQueryset:
-        disc_list.append({
-                    'id': disc.id,
-                    'discipline_name': disc.short_name,
-                    'requests': [] })
-    
-    current_discipline_id = -1
-    current_discipline = {}
-    request_pool =[]
-
-    reqQueryset = SkydiverRequest.objects.filter(status='CR').order_by('discipline')
-    for req in reqQueryset:
-        if not (req.planelift_set.exists()):
-            if req.discipline.id != current_discipline_id:
-                if current_discipline_id != -1:
-                    current_discipline['requests'] = request_pool
-
-                for index, item in enumerate(disc_list):
-                    if item['id'] == req.discipline.id:
-                        break
-                else:
-                    index = -1
-                current_discipline = disc_list[index]
-                current_discipline_id = req.discipline.id
-                request_pool =[]
-
-            request_pool.append({
-                'id': req.id,
-                'skydiver_name': req.skydiver.last_name + ' ' + req.skydiver.first_name,
-                'discipline_id': req.discipline.id,
-                'discipline_name': req.discipline.name,
-                'height': req.height,
-                'creationStamp': req.creationStamp.strftime("%d.%m.%Y, %H:%M")
-            })
-    
-    current_discipline['requests'] = request_pool
-
-    return JsonResponse(disc_list, safe=False)
-
-def lifts_list(request):
-    pDay = request.GET.get('pDay', '')
-    queryset = PlaneLift.objects.filter(day = pDay).filter(~Q(status='CMP') & ~Q(status='CNC')).order_by('ord_number')
-    ret = []
-    for lift in queryset:
-        reqs = []
-        for req in lift.request.all():
-            reqs.append({
-                'id': req.id,
-                'skydiver_name': req.skydiver.last_name + ' ' + req.skydiver.first_name,
-                'discipline_id': req.discipline.id,
-                'discipline_name': req.discipline.name,
-                'height': req.height,
-                'creationStamp': req.creationStamp.strftime("%d.%m.%Y, %H:%M")
-            })
-        ret.append({
-            'id':lift.id,
-            'ord_number':lift.ord_number,
-            'plane_reg_number':lift.plane.reg_number,
-            'lift_date':lift.day,
-            'requests': reqs,
-            'visible': True if len(ret) == 0 else False
-        })
-    return JsonResponse(ret,safe=False)
 
 def bind_request_to_lift(request):
     data =(json.loads(request.body))
@@ -113,9 +45,30 @@ def bind_request_to_lift(request):
 from rest_framework import viewsets
 
 class SkydiverRequestViewSet(viewsets.ModelViewSet):
-    queryset = SkydiverRequest.objects.filter(planelift__isnull=True)
+    queryset = SkydiverRequest.objects.all()
     serializer_class = SkydiverRequestSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.filter(status='CR').filter(planelift__isnull=True)
+        return queryset
 
 class SkydiveDisciplineViewSet(viewsets.ModelViewSet):
     queryset = SkydiveDiscipline.objects.all()
     serializer_class = SkydiveDisciplineSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.order_by('id')
+        return queryset
+
+class PlaneLiftViewSet(viewsets.ModelViewSet):
+    queryset = PlaneLift.objects.all()
+    serializer_class = PlaneLiftSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        pDay = self.request.GET.get('pDay','')
+        if pDay:
+            queryset = queryset.filter(day = pDay).filter(~Q(status='CMP') & ~Q(status='CNC')).order_by('ord_number')
+        return queryset
