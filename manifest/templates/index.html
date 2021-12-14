@@ -22,8 +22,8 @@
         <h3>Заявки</h3>
         <b-tabs content-class="mt-3">
             <b-tab v-for="(disc, index) in disciplinesList" :key="disc.id" :title="disc.short_name + ' (' + disc.skydiverrequest_set.length + ')'">
-                <draggable v-model="disc.skydiverrequest_set" group="requests" @start="drag=true" @end="onDragEnd">
-                    <div v-for="request in disc.skydiverrequest_set" :key="request.id">
+                <draggable v-model="disc.skydiverrequest_set" group="requests" @start="drag=true" @end="onDragEnd" class="list-group">
+                    <div v-for="request in disc.skydiverrequest_set" :key="request.id" class="list-group-item">
                         {{ request.skydiver_last_name }} {{ request.skydiver_first_name }}, {{ request.height }} м
                         <div> {{ request.creationStamp }}</div>
                     </div>

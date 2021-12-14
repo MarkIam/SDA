@@ -118,7 +118,7 @@ class SkydiverRequest(models.Model):
         return self.skydiver.last_name + ' ' + self.skydiver.first_name + ', ' + self.discipline.name + ', ' + str(self.height)
 
     def IsInAnyLift(self):
-        return SkydiverRequest.objects.filter(id = self.id).filter(planelift__isnull = False).count() > 0
+        return self.filter(planelift__isnull = False).count() > 0
 
     class Meta:
         verbose_name = 'Заявка'

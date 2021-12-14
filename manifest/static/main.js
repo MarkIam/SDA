@@ -8,8 +8,8 @@ Vue.component('lift-item', {
                  </b-card-header>
                  <b-collapse :id="'accordion-' + lift.id" accordion="lifts-accordion" v-model:visible="lift.visible" role="tabpanel">
                    <b-card-body>
-                     <draggable v-model="lift.request" group="requests" @start="drag=true" @end="onDragEnd">
-                       <div v-for="request in lift.request" :key="request.id">
+                     <draggable v-model="lift.request" group="requests" @start="drag=true" @end="onDragEnd" class="list-group">
+                       <div v-for="request in lift.request" :key="request.id" class="list-group-item">
                        {{ request.skydiver_last_name }} {{ request.skydiver_first_name }}, {{ request.height }} м
                          <div> {{ request.discipline_name}}, {{ request.creationStamp }}</div>
                        </div>

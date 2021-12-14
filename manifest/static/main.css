@@ -1,0 +1,6 @@
+#lifts-accordion button{
+    width:100%;
+}
+div.list-group-item{
+    cursor: move;
+}
